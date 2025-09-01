@@ -16,27 +16,149 @@
         onload="renderMathInElement(document.body);"></script>
 
 <style>
-body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-.chat-wrapper { display: flex; flex-direction: column; width: 650px; max-height: 850px; border-radius: 16px; box-shadow: 0 6px 30px rgba(0,0,0,0.15); background: #fff; overflow: hidden; }
-.chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
-.message-wrapper { display: flex; align-items: flex-start; gap: 10px; }
-.message-wrapper.user { flex-direction: row-reverse; }
-.avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; }
-.message { max-width: 75%; padding: 14px 18px; border-radius: 16px; word-wrap: break-word; font-size: 15px; line-height: 1.4; position: relative; }
-.user .message { background-color: #007bff; color: #fff; border-bottom-right-radius: 2px; }
-.bot .message { background-color: #e5e5ea; color: #000; border-bottom-left-radius: 2px; }
-.bot code { background: #f4f4f4; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 14px; }
-.bot pre { background: #f4f4f4; padding: 10px; border-radius: 8px; overflow-x: auto; }
-.bot a { color: #007bff; text-decoration: none; }
-.bot a:hover { text-decoration: underline; }
-.chat-input { display: flex; padding: 14px; border-top: 1px solid #eee; background: #fff; }
-#user-input { flex: 1; padding: 14px; border-radius: 20px; border: 1px solid #ccc; outline: none; font-size: 15px; }
-#send-btn { padding: 14px 20px; margin-left: 12px; background: #007bff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; }
-@keyframes fadeIn { from {opacity: 0; transform: translateY(5px);} to {opacity:1; transform: translateY(0);} }
-.typing { display: inline-block; width: 8px; height: 8px; margin: 0 2px; background: #888; border-radius: 50%; animation: blink 1.4s infinite both; }
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f0f2f5;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+.chat-wrapper {
+  display: flex;
+  flex-direction: column;
+  width: 650px;
+  max-height: 850px;
+  border-radius: 16px;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.15);
+  background: #fff;
+  overflow: hidden;
+}
+
+.chat-container {
+  flex: 1;
+  padding: 20px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  scroll-behavior: smooth;
+}
+
+.message-wrapper {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.message-wrapper.user {
+  flex-direction: row-reverse;
+}
+
+.avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: #ccc;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-weight: bold;
+  color: #fff;
+}
+
+.message {
+  max-width: 75%;
+  padding: 14px 18px;
+  border-radius: 16px;
+  word-wrap: break-word;
+  font-size: 15px;
+  line-height: 1.4;
+  position: relative;
+}
+
+.user .message {
+  background-color: #007bff;
+  color: #fff;
+  border-bottom-right-radius: 2px;
+}
+
+.bot .message {
+  background-color: #e5e5ea;
+  color: #000;
+  border-bottom-left-radius: 2px;
+}
+
+.bot code {
+  background: #f4f4f4;
+  padding: 3px 6px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 14px;
+}
+
+.bot pre {
+  background: #f4f4f4;
+  padding: 10px;
+  border-radius: 8px;
+  overflow-x: auto;
+}
+
+.bot a {
+  color: #007bff;
+  text-decoration: none;
+}
+
+.bot a:hover {
+  text-decoration: underline;
+}
+
+.chat-input {
+  display: flex;
+  padding: 14px;
+  border-top: 1px solid #eee;
+  background: #fff;
+}
+
+#user-input {
+  flex: 1;
+  padding: 14px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 15px;
+}
+
+#send-btn {
+  padding: 14px 20px;
+  margin-left: 12px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.typing {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  margin: 0 2px;
+  background: #888;
+  border-radius: 50%;
+  animation: blink 1.4s infinite both;
+}
+
 .typing span:nth-child(2) { animation-delay: 0.2s; }
 .typing span:nth-child(3) { animation-delay: 0.4s; }
-@keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
+
+@keyframes blink {
+  0%, 80%, 100% { opacity: 0; }
+  40% { opacity: 1; }
+}
 </style>
 </head>
 <body>
@@ -50,87 +172,63 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; jus
 </div>
 
 <script>
-// Generate or retrieve persistent session ID
-let sessionId = localStorage.getItem("chatSessionId");
-if (!sessionId) {
-  sessionId = crypto.randomUUID();
-  localStorage.setItem("chatSessionId", sessionId);
-}
-
-const chatContainer = document.getElementById('chat-container');
-const userInput = document.getElementById('user-input');
-const sendBtn = document.getElementById('send-btn');
-
-// ✅ Updated production webhook URL
-const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook/agent';
-
-sendBtn.addEventListener('click', sendMessage);
-userInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
-
-async function sendMessage() {
-  const message = userInput.value.trim();
-  if (!message) return;
-
-  appendMessage(message, 'user', 'U');
-  userInput.value = '';
-
-  const typingBubble = appendMessage('', 'bot', 'B', true);
-
-  try {
-    const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}&sessionId=${encodeURIComponent(sessionId)}`;
-    const response = await fetch(url);
-    const text = await response.text();
-
-    chatContainer.removeChild(typingBubble.parentElement);
-
-    // Parse n8n array response
-    let answerText = "No response from server.";
-    try {
-      const dataArray = JSON.parse(text);
-      if (Array.isArray(dataArray) && dataArray[0] && dataArray[0].output) {
-        answerText = dataArray[0].output;
-      } else if (dataArray.answer) {
-        answerText = dataArray.answer;
-      }
-    } catch(e) {
-      answerText = text; // fallback
-    }
-
-    // ✅ Typing animation 10x faster
-    await typeMessage(answerText, 'bot', 'B', 3);
-
-  } catch(err) {
-    chatContainer.removeChild(typingBubble.parentElement);
-    appendMessage("Error: could not reach the server.", 'bot', 'B');
-    console.error(err);
+  // Session ID
+  let sessionId = localStorage.getItem("chatSessionId");
+  if (!sessionId) {
+    sessionId = crypto.randomUUID();
+    localStorage.setItem("chatSessionId", sessionId);
   }
-}
 
-// Append message normally
-function appendMessage(text, type, avatarInitial, typing=false) {
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('message-wrapper', type);
+  const chatContainer = document.getElementById('chat-container');
+  const userInput = document.getElementById('user-input');
+  const sendBtn = document.getElementById('send-btn');
 
-  const avatar = document.createElement('div');
-  avatar.classList.add('avatar');
-  avatar.innerText = avatarInitial;
+  // Production webhook URL
+  const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook/agent';
 
-  const msgDiv = document.createElement('div');
-  msgDiv.classList.add('message', type);
-  if(typing) { msgDiv.classList.add('typing'); msgDiv.innerHTML = '<span></span><span></span><span></span>'; }
-  else { msgDiv.innerText = text; }
+  sendBtn.addEventListener('click', sendMessage);
+  userInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(msgDiv);
+  async function sendMessage() {
+    const message = userInput.value.trim();
+    if (!message) return;
 
-  chatContainer.appendChild(wrapper);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
-  return msgDiv;
-}
+    appendMessage(message, 'user', 'U');
+    userInput.value = '';
 
-// Append message letter by letter with adjustable speed
-function typeMessage(fullText, type, avatarInitial, speed=3) {
-  return new Promise(resolve => {
+    const typingBubble = appendMessage('', 'bot', 'B', true);
+
+    try {
+      const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}&sessionId=${encodeURIComponent(sessionId)}`;
+      const response = await fetch(url);
+      const text = await response.text();
+
+      chatContainer.removeChild(typingBubble.parentElement);
+
+      // Parse n8n array response
+      let answerText = "No response from server.";
+      try {
+        const dataArray = JSON.parse(text);
+        if (Array.isArray(dataArray) && dataArray[0] && dataArray[0].output) {
+          answerText = dataArray[0].output;
+        } else if (dataArray.answer) {
+          answerText = dataArray.answer;
+        }
+      } catch (e) {
+        answerText = text;
+      }
+
+      // Typing animation (fast)
+      await typeMessage(answerText, 'bot', 'B', 3);
+
+    } catch (err) {
+      chatContainer.removeChild(typingBubble.parentElement);
+      appendMessage("Error: could not reach the server.", 'bot', 'B');
+      console.error(err);
+    }
+  }
+
+  function appendMessage(text, type, avatarInitial, typing=false) {
     const wrapper = document.createElement('div');
     wrapper.classList.add('message-wrapper', type);
 
@@ -140,37 +238,63 @@ function typeMessage(fullText, type, avatarInitial, speed=3) {
 
     const msgDiv = document.createElement('div');
     msgDiv.classList.add('message', type);
+    if (typing) {
+      msgDiv.classList.add('typing');
+      msgDiv.innerHTML = '<span></span><span></span><span></span>';
+    } else {
+      msgDiv.innerHTML = text.replace(/\n/g, "<br>");
+    }
 
     wrapper.appendChild(avatar);
     wrapper.appendChild(msgDiv);
     chatContainer.appendChild(wrapper);
     chatContainer.scrollTop = chatContainer.scrollHeight;
+    return msgDiv;
+  }
 
-    let index = 0;
-    function typeNext() {
-      if (index < fullText.length) {
-        msgDiv.innerHTML += fullText[index];
-        index++;
-        chatContainer.scrollTop = chatContainer.scrollHeight;
-        setTimeout(typeNext, speed); // ✅ adjustable typing speed
-      } else {
-        // Render markdown & math
-        renderMathInElement(msgDiv, {
-          delimiters: [
-            {left: "$$", right: "$$", display: true},
-            {left: "\\[", right: "\\]", display: true},
-            {left: "$", right: "$", display: false},
-            {left: "\\(", right: "\\)", display: false}
-          ]
-        });
-        resolve();
+  function typeMessage(fullText, type, avatarInitial, speed=3) {
+    return new Promise(resolve => {
+      const wrapper = document.createElement('div');
+      wrapper.classList.add('message-wrapper', type);
+
+      const avatar = document.createElement('div');
+      avatar.classList.add('avatar');
+      avatar.innerText = avatarInitial;
+
+      const msgDiv = document.createElement('div');
+      msgDiv.classList.add('message', type);
+
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(msgDiv);
+      chatContainer.appendChild(wrapper);
+      chatContainer.scrollTop = chatContainer.scrollHeight;
+
+      let index = 0;
+      function typeNext() {
+        if (index < fullText.length) {
+          const char = fullText[index];
+          msgDiv.innerHTML += (char === '\n') ? '<br>' : char;
+          index++;
+          chatContainer.scrollTop = chatContainer.scrollHeight;
+          setTimeout(typeNext, speed);
+        } else {
+          // Markdown & math
+          msgDiv.innerHTML = marked.parse(msgDiv.innerHTML);
+          renderMathInElement(msgDiv, {
+            delimiters: [
+              {left: "$$", right: "$$", display: true},
+              {left: "\\[", right: "\\]", display: true},
+              {left: "$", right: "$", display: false},
+              {left: "\\(", right: "\\)", display: false}
+            ]
+          });
+          resolve();
+        }
       }
-    }
-    typeNext();
-  });
-}
+      typeNext();
+    });
+  }
 </script>
-
 
 </body>
 </html>
