@@ -61,7 +61,8 @@ const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook-test/agent';
+// ✅ Updated production webhook URL
+const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook/agent';
 
 sendBtn.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
@@ -95,7 +96,8 @@ async function sendMessage() {
       answerText = text; // fallback
     }
 
-    await typeMessage(answerText, 'bot', 'B');
+    // ✅ Typing animation 10x faster
+    await typeMessage(answerText, 'bot', 'B', 3);
 
   } catch(err) {
     chatContainer.removeChild(typingBubble.parentElement);
@@ -126,8 +128,8 @@ function appendMessage(text, type, avatarInitial, typing=false) {
   return msgDiv;
 }
 
-// Append message letter by letter
-function typeMessage(fullText, type, avatarInitial) {
+// Append message letter by letter with adjustable speed
+function typeMessage(fullText, type, avatarInitial, speed=3) {
   return new Promise(resolve => {
     const wrapper = document.createElement('div');
     wrapper.classList.add('message-wrapper', type);
@@ -150,7 +152,7 @@ function typeMessage(fullText, type, avatarInitial) {
         msgDiv.innerHTML += fullText[index];
         index++;
         chatContainer.scrollTop = chatContainer.scrollHeight;
-        setTimeout(typeNext, 30); // typing speed
+        setTimeout(typeNext, speed); // ✅ adjustable typing speed
       } else {
         // Render markdown & math
         renderMathInElement(msgDiv, {
@@ -168,6 +170,7 @@ function typeMessage(fullText, type, avatarInitial) {
   });
 }
 </script>
+
 
 </body>
 </html>
