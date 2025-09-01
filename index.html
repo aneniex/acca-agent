@@ -50,7 +50,7 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; jus
 </div>
 
 <script>
-// Get or generate a persistent session ID
+// Generate or retrieve persistent session ID
 let sessionId = localStorage.getItem("chatSessionId");
 if (!sessionId) {
   sessionId = crypto.randomUUID();
@@ -61,7 +61,6 @@ const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// n8n webhook URL
 const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook-test/agent';
 
 sendBtn.addEventListener('click', sendMessage);
@@ -77,18 +76,26 @@ async function sendMessage() {
   const typingBubble = appendMessage('', 'bot', 'B', true);
 
   try {
-    // Send input + sessionId via query string
     const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}&sessionId=${encodeURIComponent(sessionId)}`;
     const response = await fetch(url);
     const text = await response.text();
 
     chatContainer.removeChild(typingBubble.parentElement);
 
-    // Try parsing JSON, fallback to plain text
-    let data;
-    try { data = JSON.parse(text); } catch(e) { data = { answer: text }; }
+    // Parse n8n array response
+    let answerText = "No response from server.";
+    try {
+      const dataArray = JSON.parse(text);
+      if (Array.isArray(dataArray) && dataArray[0] && dataArray[0].output) {
+        answerText = dataArray[0].output;
+      } else if (dataArray.answer) {
+        answerText = dataArray.answer;
+      }
+    } catch(e) {
+      answerText = text; // fallback
+    }
 
-    appendMessageMarkdown(data.answer || "No response from server.", 'bot', 'B');
+    await typeMessage(answerText, 'bot', 'B');
 
   } catch(err) {
     chatContainer.removeChild(typingBubble.parentElement);
@@ -97,6 +104,7 @@ async function sendMessage() {
   }
 }
 
+// Append message normally
 function appendMessage(text, type, avatarInitial, typing=false) {
   const wrapper = document.createElement('div');
   wrapper.classList.add('message-wrapper', type);
@@ -118,30 +126,45 @@ function appendMessage(text, type, avatarInitial, typing=false) {
   return msgDiv;
 }
 
-function appendMessageMarkdown(mdText, type, avatarInitial) {
-  const wrapper = document.createElement('div');
-  wrapper.classList.add('message-wrapper', type);
+// Append message letter by letter
+function typeMessage(fullText, type, avatarInitial) {
+  return new Promise(resolve => {
+    const wrapper = document.createElement('div');
+    wrapper.classList.add('message-wrapper', type);
 
-  const avatar = document.createElement('div');
-  avatar.classList.add('avatar');
-  avatar.innerText = avatarInitial;
+    const avatar = document.createElement('div');
+    avatar.classList.add('avatar');
+    avatar.innerText = avatarInitial;
 
-  const msgDiv = document.createElement('div');
-  msgDiv.classList.add('message', type);
-  msgDiv.innerHTML = marked.parse(mdText);
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', type);
 
-  wrapper.appendChild(avatar);
-  wrapper.appendChild(msgDiv);
-  chatContainer.appendChild(wrapper);
-  chatContainer.scrollTop = chatContainer.scrollHeight;
+    wrapper.appendChild(avatar);
+    wrapper.appendChild(msgDiv);
+    chatContainer.appendChild(wrapper);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  renderMathInElement(msgDiv, {
-    delimiters: [
-      {left: "$$", right: "$$", display: true},
-      {left: "\\[", right: "\\]", display: true},
-      {left: "$", right: "$", display: false},
-      {left: "\\(", right: "\\)", display: false}
-    ]
+    let index = 0;
+    function typeNext() {
+      if (index < fullText.length) {
+        msgDiv.innerHTML += fullText[index];
+        index++;
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        setTimeout(typeNext, 30); // typing speed
+      } else {
+        // Render markdown & math
+        renderMathInElement(msgDiv, {
+          delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "\\[", right: "\\]", display: true},
+            {left: "$", right: "$", display: false},
+            {left: "\\(", right: "\\)", display: false}
+          ]
+        });
+        resolve();
+      }
+    }
+    typeNext();
   });
 }
 </script>
