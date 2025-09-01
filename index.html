@@ -5,146 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ACCA Chat Agent</title>
 
-<!-- Fonts -->
+<!-- Fonts & Markdown -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-
-<!-- Markdown parser -->
 <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
 
-<!-- KaTeX for LaTeX rendering -->
+<!-- KaTeX -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css">
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/contrib/auto-render.min.js"
-    onload="renderMathInElement(document.body);"></script>
+        onload="renderMathInElement(document.body);"></script>
 
 <style>
-body {
-  font-family: 'Inter', sans-serif;
-  background: #f0f2f5;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  margin: 0;
-}
-
-.chat-wrapper {
-  display: flex;
-  flex-direction: column;
-  width: 600px;      /* increased width */
-  max-height: 800px; /* increased height */
-  border-radius: 16px;
-  box-shadow: 0 6px 25px rgba(0,0,0,0.12);
-  background: #fff;
-  overflow: hidden;
-}
-
-.chat-container {
-  flex: 1;
-  padding: 20px;
-  overflow-y: auto;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.message {
-  max-width: 80%;
-  padding: 12px 16px;
-  border-radius: 14px;
-  word-wrap: break-word;
-  animation: fadeIn 0.2s ease;
-  font-size: 15px; /* slightly larger text */
-}
-
-.user {
-  background-color: #007bff;
-  color: #fff;
-  align-self: flex-end;
-  border-bottom-right-radius: 2px;
-}
-
-.bot {
-  background-color: #e5e5ea;
-  color: #000;
-  align-self: flex-start;
-  border-bottom-left-radius: 2px;
-  white-space: pre-wrap;
-}
-
-.bot code {
-  background: #f4f4f4;
-  padding: 3px 6px;
-  border-radius: 4px;
-  font-family: monospace;
-  font-size: 14px;
-}
-
-.bot pre {
-  background: #f4f4f4;
-  padding: 10px;
-  border-radius: 8px;
-  overflow-x: auto;
-}
-
-.bot a {
-  color: #007bff;
-  text-decoration: none;
-}
-
-.bot a:hover {
-  text-decoration: underline;
-}
-
-.chat-input {
-  display: flex;
-  padding: 12px;
-  border-top: 1px solid #eee;
-  background: #fff;
-}
-
-#user-input {
-  flex: 1;
-  padding: 12px;
-  border-radius: 14px;
-  border: 1px solid #ccc;
-  outline: none;
-  font-size: 15px;
-}
-
-#send-btn {
-  padding: 12px 18px;
-  margin-left: 10px;
-  background: #007bff;
-  color: white;
-  border: none;
-  border-radius: 14px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-@keyframes fadeIn {
-  from {opacity: 0; transform: translateY(5px);}
-  to {opacity:1; transform: translateY(0);}
-}
-
-.typing {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  margin: 0 2px;
-  background: #888;
-  border-radius: 50%;
-  animation: blink 1.4s infinite both;
-}
-
+body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+.chat-wrapper { display: flex; flex-direction: column; width: 650px; max-height: 850px; border-radius: 16px; box-shadow: 0 6px 30px rgba(0,0,0,0.15); background: #fff; overflow: hidden; }
+.chat-container { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 16px; scroll-behavior: smooth; }
+.message-wrapper { display: flex; align-items: flex-start; gap: 10px; }
+.message-wrapper.user { flex-direction: row-reverse; }
+.avatar { width: 36px; height: 36px; border-radius: 50%; background: #ccc; display: flex; justify-content: center; align-items: center; font-weight: bold; color: #fff; }
+.message { max-width: 75%; padding: 14px 18px; border-radius: 16px; word-wrap: break-word; font-size: 15px; line-height: 1.4; position: relative; }
+.user .message { background-color: #007bff; color: #fff; border-bottom-right-radius: 2px; }
+.bot .message { background-color: #e5e5ea; color: #000; border-bottom-left-radius: 2px; }
+.bot code { background: #f4f4f4; padding: 3px 6px; border-radius: 4px; font-family: monospace; font-size: 14px; }
+.bot pre { background: #f4f4f4; padding: 10px; border-radius: 8px; overflow-x: auto; }
+.bot a { color: #007bff; text-decoration: none; }
+.bot a:hover { text-decoration: underline; }
+.chat-input { display: flex; padding: 14px; border-top: 1px solid #eee; background: #fff; }
+#user-input { flex: 1; padding: 14px; border-radius: 20px; border: 1px solid #ccc; outline: none; font-size: 15px; }
+#send-btn { padding: 14px 20px; margin-left: 12px; background: #007bff; color: white; border: none; border-radius: 20px; cursor: pointer; font-weight: 500; }
+@keyframes fadeIn { from {opacity: 0; transform: translateY(5px);} to {opacity:1; transform: translateY(0);} }
+.typing { display: inline-block; width: 8px; height: 8px; margin: 0 2px; background: #888; border-radius: 50%; animation: blink 1.4s infinite both; }
 .typing span:nth-child(2) { animation-delay: 0.2s; }
 .typing span:nth-child(3) { animation-delay: 0.4s; }
-
-@keyframes blink {
-  0%, 80%, 100% { opacity: 0; }
-  40% { opacity: 1; }
-}
+@keyframes blink { 0%, 80%, 100% { opacity: 0; } 40% { opacity: 1; } }
 </style>
 </head>
 <body>
@@ -162,62 +54,72 @@ const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Your n8n webhook URL
+// Webhook URL using query parameter to avoid CORS preflight
 const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook-test/query';
 
 sendBtn.addEventListener('click', sendMessage);
-userInput.addEventListener('keypress', function(e) {
-  if(e.key === 'Enter') sendMessage();
-});
+userInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 
 async function sendMessage() {
   const message = userInput.value.trim();
   if(!message) return;
 
-  appendMessage(message, 'user');
+  appendMessage(message, 'user', 'U'); // U = User avatar initial
   userInput.value = '';
 
-  const typingBubble = appendMessage('', 'bot', true);
+  const typingBubble = appendMessage('', 'bot', 'B', true); // B = Bot avatar
 
   try {
-    const response = await fetch(WEBHOOK_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ question: message })
-    });
+    const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}`;
+    const response = await fetch(url);
     const data = await response.json();
-    chatContainer.removeChild(typingBubble);
-    appendMessageMarkdown(data.answer || "No response from server.", 'bot');
+    chatContainer.removeChild(typingBubble.parentElement);
+    appendMessageMarkdown(data.answer || "No response from server.", 'bot', 'B');
   } catch(err) {
-    chatContainer.removeChild(typingBubble);
-    appendMessage("Error: could not reach the server.", 'bot');
+    chatContainer.removeChild(typingBubble.parentElement);
+    appendMessage("Error: could not reach the server.", 'bot', 'B');
     console.error(err);
   }
 }
 
-function appendMessage(text, type, typing=false) {
+function appendMessage(text, type, avatarInitial, typing=false) {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('message-wrapper', type);
+
+  const avatar = document.createElement('div');
+  avatar.classList.add('avatar');
+  avatar.innerText = avatarInitial;
+
   const msgDiv = document.createElement('div');
   msgDiv.classList.add('message', type);
-  if(typing) {
-    msgDiv.classList.add('typing');
-    msgDiv.innerHTML = '<span></span><span></span><span></span>';
-  } else {
-    msgDiv.innerText = text;
-  }
-  chatContainer.appendChild(msgDiv);
+  if(typing) { msgDiv.classList.add('typing'); msgDiv.innerHTML = '<span></span><span></span><span></span>'; }
+  else { msgDiv.innerText = text; }
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(msgDiv);
+
+  chatContainer.appendChild(wrapper);
   chatContainer.scrollTop = chatContainer.scrollHeight;
   return msgDiv;
 }
 
-function appendMessageMarkdown(mdText, type) {
+function appendMessageMarkdown(mdText, type, avatarInitial) {
+  const wrapper = document.createElement('div');
+  wrapper.classList.add('message-wrapper', type);
+
+  const avatar = document.createElement('div');
+  avatar.classList.add('avatar');
+  avatar.innerText = avatarInitial;
+
   const msgDiv = document.createElement('div');
   msgDiv.classList.add('message', type);
-  // Parse Markdown
   msgDiv.innerHTML = marked.parse(mdText);
-  chatContainer.appendChild(msgDiv);
+
+  wrapper.appendChild(avatar);
+  wrapper.appendChild(msgDiv);
+  chatContainer.appendChild(wrapper);
   chatContainer.scrollTop = chatContainer.scrollHeight;
 
-  // Render LaTeX
   renderMathInElement(msgDiv, {
     delimiters: [
       {left: "$$", right: "$$", display: true},
