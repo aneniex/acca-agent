@@ -50,31 +50,46 @@ body { font-family: 'Inter', sans-serif; background: #f0f2f5; display: flex; jus
 </div>
 
 <script>
+// Get or generate a persistent session ID
+let sessionId = localStorage.getItem("chatSessionId");
+if (!sessionId) {
+  sessionId = crypto.randomUUID();
+  localStorage.setItem("chatSessionId", sessionId);
+}
+
 const chatContainer = document.getElementById('chat-container');
 const userInput = document.getElementById('user-input');
 const sendBtn = document.getElementById('send-btn');
 
-// Webhook URL using query parameter to avoid CORS preflight
-const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook-test/query';
+// n8n webhook URL
+const WEBHOOK_URL = 'https://aneniex.app.n8n.cloud/webhook-test/agent';
 
 sendBtn.addEventListener('click', sendMessage);
 userInput.addEventListener('keypress', e => { if(e.key === 'Enter') sendMessage(); });
 
 async function sendMessage() {
   const message = userInput.value.trim();
-  if(!message) return;
+  if (!message) return;
 
-  appendMessage(message, 'user', 'U'); // U = User avatar initial
+  appendMessage(message, 'user', 'U');
   userInput.value = '';
 
-  const typingBubble = appendMessage('', 'bot', 'B', true); // B = Bot avatar
+  const typingBubble = appendMessage('', 'bot', 'B', true);
 
   try {
-    const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}`;
+    // Send input + sessionId via query string
+    const url = `${WEBHOOK_URL}?input=${encodeURIComponent(message)}&sessionId=${encodeURIComponent(sessionId)}`;
     const response = await fetch(url);
-    const data = await response.json();
+    const text = await response.text();
+
     chatContainer.removeChild(typingBubble.parentElement);
+
+    // Try parsing JSON, fallback to plain text
+    let data;
+    try { data = JSON.parse(text); } catch(e) { data = { answer: text }; }
+
     appendMessageMarkdown(data.answer || "No response from server.", 'bot', 'B');
+
   } catch(err) {
     chatContainer.removeChild(typingBubble.parentElement);
     appendMessage("Error: could not reach the server.", 'bot', 'B');
