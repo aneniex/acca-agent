@@ -20,12 +20,17 @@ const MessageManager = {
     if (message.isUser) {
       content.textContent = message.text;
     } else {
-      const renderedContent = marked.parse(message.text);
-      content.innerHTML = renderedContent;
-      Utils.highlightACCATerms(content);
-      if (message.text.length > CONFIG.EXPANDABLE_CONTENT_THRESHOLD) {
-        UI.makeExpandable(content, messageDiv);
-      }
+      // Fast typing effect: progressively render markdown
+      this.typeRenderMarkdown(message.text, content, () => {
+        Utils.highlightACCATerms(content);
+        if (message.text.length > CONFIG.EXPANDABLE_CONTENT_THRESHOLD) {
+          UI.makeExpandable(content, messageDiv);
+        }
+        // Syntax highlighting for code blocks after final render
+        wrapper.querySelectorAll('pre code').forEach(block => {
+          try { hljs.highlightElement(block); } catch (_) {}
+        });
+      });
     }
 
     const meta = document.createElement('div');
@@ -83,13 +88,31 @@ const MessageManager = {
     }
     
     Utils.scrollToBottom();
-    
-    // Syntax highlighting for code blocks
-    if (!message.isUser) {
-      wrapper.querySelectorAll('pre code').forEach(block => {
-        hljs.highlightElement(block);
-      });
-    }
+  },
+
+  // Progressive markdown rendering for bot messages
+  typeRenderMarkdown(fullText, targetEl, onDone) {
+    const CHUNK_SIZE = 12;     // characters per tick (fast)
+    const DELAY_MS = 8;        // time between ticks
+
+    let index = 0;
+    const len = fullText.length;
+
+    const tick = () => {
+      if (index >= len) {
+        if (typeof onDone === 'function') onDone();
+        return;
+      }
+      index = Math.min(index + CHUNK_SIZE, len);
+      const partial = fullText.slice(0, index);
+      // Render partial markdown each tick
+      targetEl.innerHTML = marked.parse(partial);
+      Utils.scrollToBottom();
+      setTimeout(tick, DELAY_MS);
+    };
+
+    // Start the typing effect
+    tick();
   },
 
   // Copy message text
