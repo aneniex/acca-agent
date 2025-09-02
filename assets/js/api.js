@@ -29,6 +29,14 @@ const API = {
       if (!reply) {
         reply = "⚠️ No response from server.";
       }
+
+      // Normalize escaped sequences so Markdown renders properly
+      if (typeof reply === 'string') {
+        reply = reply
+          .replace(/\r\n/g, '\n')
+          .replace(/\\n/g, '\n')
+          .replace(/\\t/g, '    ');
+      }
       
       return reply;
       
