@@ -30,6 +30,9 @@ const CannedResponses = (() => {
     { patterns: ['ok', 'k', 'okay', 'alright', 'cool', 'nice'], reply: 'Great! If you want, I can suggest a practice question.' },
     { patterns: ['bye', 'goodbye', 'see ya', 'see you', 'cya', 'later'], reply: 'Goodbye! Keep up the great work with your ACCA studies.' },
 
+    // Explicit practice question intent (placed before generic small-talk matches by using longest-match logic)
+    { patterns: ['suggest a practice question', 'ok suggest a practice question', 'give me a question', 'practice question', 'ask me a question'], reply: 'Here’s a practice question: Under ISA 505, why are positive confirmations generally considered more reliable than negative confirmations? Provide two reasons and one example. Would you like the model answer?' },
+
     // Polite refusals / boundaries
     { patterns: ['fuck you', 'f u', 'f off', 'stfu', 'shut up'], reply: 'I’m here to help. Let’s keep things respectful. What ACCA topic can I assist with?' },
     { patterns: ['get lost', 'go away'], reply: 'No problem. If you need help later, I’ll be here.' },
@@ -58,7 +61,7 @@ const CannedResponses = (() => {
     // Emojis / minimal
     { patterns: [':)', '🙂', '😊'], reply: '🙂 Great! What should we cover next?' },
     { patterns: [':(', '🙁', '😞'], reply: 'Sorry to hear that. Want a quick summary to make things easier?' },
-    { patterns: ['👍', '👌', '✅'], reply: 'Awesome! Want to try a practice question?' },
+    { patterns: ['👍', '👌', '✅'], reply: 'Awesome! Want another question?' },
 
     // Small talk variations (adding many patterns to reach ~100)
     { patterns: ['yo bro', 'yo man', 'hey bro', 'hey man'], reply: 'Hey! How can I help with your ACCA prep today?' },
@@ -131,14 +134,18 @@ const CannedResponses = (() => {
     // Exact match
     if (lookup.has(n)) return lookup.get(n);
 
-    // Contains match: if any pattern is a full word inside the input
+    // Prefer the longest pattern that matches as a whole word within the input
+    let best = null;
     for (const [key, value] of lookup.entries()) {
       if (!key) continue;
       const re = new RegExp(`(^|\\s)${key.replace(/[-/\\^$*+?.()|[\]{}]/g, '\\$&')}(?=$|\\s)`);
-      if (re.test(n)) return value;
+      if (re.test(n)) {
+        if (!best || key.length > best.key.length) {
+          best = { key, value };
+        }
+      }
     }
-
-    return null;
+    return best ? best.value : null;
   }
 
   return { getReply };
