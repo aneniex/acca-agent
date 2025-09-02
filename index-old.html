@@ -1,0 +1,2031 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ACCA Agent - Your AI Study Companion</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.11.1/font/bootstrap-icons.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0066cc">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-title" content="ACCA Agent">
+  <style>
+    :root {
+      --primary-color: #0066cc;
+      --secondary-color: #6c757d;
+      --success-color: #28a745;
+      --danger-color: #dc3545;
+      --warning-color: #ffc107;
+      --info-color: #17a2b8;
+      --light-bg: #f8f9fa;
+      --dark-bg: #121212;
+      --light-surface: #ffffff;
+      --dark-surface: #1e1e1e;
+      --light-border: #dee2e6;
+      --dark-border: #333333;
+      --light-text: #212529;
+      --dark-text: #e0e0e0;
+      --shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+      --shadow-lg: 0 1rem 3rem rgba(0, 0, 0, 0.175);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background-color: var(--light-bg);
+      color: var(--light-text);
+      transition: all 0.3s ease;
+      margin: 0;
+      padding: 0;
+      line-height: 1.6;
+    }
+
+    body.dark-mode {
+      background-color: var(--dark-bg);
+      color: var(--dark-text);
+    }
+
+    .app-container {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-container {
+      max-width: 1000px;
+      width: 100%;
+      margin: 1rem auto;
+      height: calc(100vh - 2rem);
+      border: 1px solid var(--light-border);
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      background: var(--light-surface);
+      overflow: hidden;
+      box-shadow: var(--shadow-lg);
+    }
+
+    body.dark-mode .chat-container {
+      background: var(--dark-surface);
+      border-color: var(--dark-border);
+    }
+
+    .chat-header {
+      background: var(--light-surface);
+      border-bottom: 1px solid var(--light-border);
+      padding: 1rem 1.5rem;
+      display: flex;
+      justify-content: between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+
+    body.dark-mode .chat-header {
+      background: var(--dark-surface);
+      border-color: var(--dark-border);
+    }
+
+    .header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: 600;
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    .header-controls {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .message-wrapper {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      max-width: 85%;
+      animation: fadeIn 0.3s ease-in;
+    }
+
+    .message-wrapper.user {
+      margin-left: auto;
+      flex-direction: row-reverse;
+    }
+
+    .avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      flex-shrink: 0;
+    }
+
+    .user-avatar {
+      background: linear-gradient(135deg, var(--primary-color), #0052a3);
+      color: white;
+    }
+
+    .bot-avatar {
+      background: linear-gradient(135deg, #6c757d, #495057);
+      color: white;
+    }
+
+    .message {
+      background: var(--light-surface);
+      border: 1px solid var(--light-border);
+      border-radius: 18px;
+      padding: 0.875rem 1.125rem;
+      position: relative;
+      box-shadow: var(--shadow);
+      word-wrap: break-word;
+      flex: 1;
+    }
+
+    .user-message {
+      background: linear-gradient(135deg, var(--primary-color), #0052a3);
+      color: white;
+      border-color: var(--primary-color);
+    }
+
+    .bot-message {
+      background: var(--light-surface);
+      border-color: var(--light-border);
+    }
+
+    body.dark-mode .bot-message {
+      background: #2a2a2a;
+      border-color: var(--dark-border);
+      color: var(--dark-text);
+    }
+
+    .message-content {
+      margin: 0;
+    }
+
+    .message-content h1,
+    .message-content h2,
+    .message-content h3,
+    .message-content h4,
+    .message-content h5,
+    .message-content h6 {
+      margin-top: 0;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .message-content p {
+      margin-bottom: 0.75rem;
+    }
+
+    .message-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .message-content ul,
+    .message-content ol {
+      margin-bottom: 0.75rem;
+      padding-left: 1.5rem;
+    }
+
+    .message-content li {
+      margin-bottom: 0.25rem;
+    }
+
+    .message-content code {
+      background: rgba(0, 0, 0, 0.1);
+      padding: 0.125rem 0.25rem;
+      border-radius: 4px;
+      font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', monospace;
+      font-size: 0.875em;
+    }
+
+    .message-content pre {
+      background: #f8f9fa;
+      border: 1px solid var(--light-border);
+      border-radius: 8px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 0.75rem 0;
+    }
+
+    body.dark-mode .message-content pre {
+      background: #2d2d2d;
+      border-color: var(--dark-border);
+    }
+
+    .message-content pre code {
+      background: none;
+      padding: 0;
+    }
+
+    .message-content table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 0.75rem 0;
+      font-size: 0.9rem;
+    }
+
+    .message-content th,
+    .message-content td {
+      border: 1px solid var(--light-border);
+      padding: 0.5rem;
+      text-align: left;
+    }
+
+    body.dark-mode .message-content th,
+    body.dark-mode .message-content td {
+      border-color: var(--dark-border);
+    }
+
+    .message-content th {
+      background: var(--light-bg);
+      font-weight: 600;
+    }
+
+    body.dark-mode .message-content th {
+      background: #2a2a2a;
+    }
+
+    .message-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 0.5rem;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+    }
+
+    .message-timestamp {
+      font-size: 0.75rem;
+      opacity: 0.6;
+      font-weight: 400;
+    }
+
+    .message-actions {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .action-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 0.875rem;
+      opacity: 0.6;
+      transition: all 0.2s ease;
+      color: inherit;
+    }
+
+    .action-btn:hover {
+      opacity: 1;
+      background: rgba(0, 0, 0, 0.1);
+    }
+
+    .action-btn.active {
+      opacity: 1;
+      color: var(--success-color);
+    }
+
+    .expandable-content {
+      max-height: 300px;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      position: relative;
+    }
+
+    .expandable-content.collapsed {
+      max-height: 150px;
+    }
+
+    .expandable-content.collapsed::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 50px;
+      background: linear-gradient(transparent, var(--light-surface));
+      pointer-events: none;
+    }
+
+    body.dark-mode .expandable-content.collapsed::after {
+      background: linear-gradient(transparent, #2a2a2a);
+    }
+
+    .expand-btn {
+      width: 100%;
+      background: none;
+      border: 1px solid var(--light-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin-top: 0.5rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      color: var(--primary-color);
+    }
+
+    body.dark-mode .expand-btn {
+      border-color: var(--dark-border);
+      color: var(--primary-color);
+    }
+
+    .expand-btn:hover {
+      background: var(--light-bg);
+    }
+
+    body.dark-mode .expand-btn:hover {
+      background: #2a2a2a;
+    }
+
+    .quick-replies {
+      padding: 0.75rem 1rem;
+      border-top: 1px solid var(--light-border);
+      background: var(--light-surface);
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      overflow-x: auto;
+    }
+
+    body.dark-mode .quick-replies {
+      background: var(--dark-surface);
+      border-color: var(--dark-border);
+    }
+
+    .quick-reply-btn {
+      white-space: nowrap;
+      font-size: 0.875rem;
+      padding: 0.5rem 1rem;
+      border-radius: 20px;
+      transition: all 0.2s ease;
+    }
+
+    .chat-input-container {
+      border-top: 1px solid var(--light-border);
+      padding: 1rem;
+      background: var(--light-surface);
+    }
+
+    body.dark-mode .chat-input-container {
+      background: var(--dark-surface);
+      border-color: var(--dark-border);
+    }
+
+    .chat-input {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-end;
+    }
+
+    .input-group {
+      flex: 1;
+      position: relative;
+    }
+
+    .chat-input-field {
+      width: 100%;
+      border: 2px solid var(--light-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      resize: none;
+      min-height: 44px;
+      max-height: 120px;
+      transition: all 0.2s ease;
+      background: var(--light-surface);
+      color: var(--light-text);
+    }
+
+    body.dark-mode .chat-input-field {
+      background: #2a2a2a;
+      border-color: var(--dark-border);
+      color: var(--dark-text);
+    }
+
+    .chat-input-field:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+    }
+
+    .input-actions {
+      position: absolute;
+      right: 0.5rem;
+      bottom: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .input-action-btn {
+      background: none;
+      border: none;
+      padding: 0.25rem;
+      border-radius: 4px;
+      cursor: pointer;
+      color: var(--secondary-color);
+      transition: all 0.2s ease;
+    }
+
+    .input-action-btn:hover {
+      color: var(--primary-color);
+      background: rgba(0, 102, 204, 0.1);
+    }
+
+    .send-btn {
+      background: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .send-btn:hover {
+      background: #0052a3;
+      transform: translateY(-1px);
+    }
+
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .loading-indicator {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 1rem;
+      color: var(--secondary-color);
+      font-style: italic;
+    }
+
+    .typing-dots {
+      display: flex;
+      gap: 0.25rem;
+    }
+
+    .typing-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--secondary-color);
+      animation: typing 1.4s infinite;
+    }
+
+    .typing-dot:nth-child(2) {
+      animation-delay: 0.2s;
+    }
+
+    .typing-dot:nth-child(3) {
+      animation-delay: 0.4s;
+    }
+
+    .intro-message {
+      text-align: center;
+      padding: 2rem;
+      color: var(--secondary-color);
+    }
+
+    .intro-message h3 {
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+    }
+
+    .suggested-prompts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .prompt-card {
+      background: var(--light-surface);
+      border: 1px solid var(--light-border);
+      border-radius: 12px;
+      padding: 1rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    body.dark-mode .prompt-card {
+      background: #2a2a2a;
+      border-color: var(--dark-border);
+    }
+
+    .prompt-card:hover {
+      border-color: var(--primary-color);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow);
+    }
+
+    .prompt-card h5 {
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .context-indicator {
+      background: rgba(0, 102, 204, 0.1);
+      border: 1px solid rgba(0, 102, 204, 0.3);
+      border-radius: 8px;
+      padding: 0.5rem 0.75rem;
+      margin-bottom: 1rem;
+      font-size: 0.875rem;
+      color: var(--primary-color);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .pinned-messages {
+      background: var(--light-bg);
+      border-bottom: 1px solid var(--light-border);
+      padding: 0.5rem 1rem;
+      display: none;
+    }
+
+    body.dark-mode .pinned-messages {
+      background: #2a2a2a;
+      border-color: var(--dark-border);
+    }
+
+    .pinned-messages.has-pins {
+      display: block;
+    }
+
+    .pinned-item {
+      background: var(--light-surface);
+      border: 1px solid var(--light-border);
+      border-radius: 8px;
+      padding: 0.5rem;
+      margin: 0.25rem 0;
+      font-size: 0.875rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    body.dark-mode .pinned-item {
+      background: var(--dark-surface);
+      border-color: var(--dark-border);
+    }
+
+    .search-container {
+      position: relative;
+      margin-bottom: 1rem;
+    }
+
+    .search-input {
+      width: 100%;
+      border: 1px solid var(--light-border);
+      border-radius: 8px;
+      padding: 0.5rem 2.5rem 0.5rem 1rem;
+      background: var(--light-surface);
+      color: var(--light-text);
+    }
+
+    body.dark-mode .search-input {
+      background: #2a2a2a;
+      border-color: var(--dark-border);
+      color: var(--dark-text);
+    }
+
+    .search-icon {
+      position: absolute;
+      right: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--secondary-color);
+    }
+
+    .rating-container {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+      align-items: center;
+    }
+
+    .rating-btn {
+      background: none;
+      border: 1px solid var(--light-border);
+      border-radius: 20px;
+      padding: 0.25rem 0.75rem;
+      cursor: pointer;
+      font-size: 0.875rem;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    body.dark-mode .rating-btn {
+      border-color: var(--dark-border);
+    }
+
+    .rating-btn:hover {
+      background: var(--light-bg);
+    }
+
+    body.dark-mode .rating-btn:hover {
+      background: #2a2a2a;
+    }
+
+    .rating-btn.positive {
+      color: var(--success-color);
+      border-color: var(--success-color);
+    }
+
+    .rating-btn.negative {
+      color: var(--danger-color);
+      border-color: var(--danger-color);
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+    }
+
+    .modal.show {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: var(--light-surface);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+    }
+
+    body.dark-mode .modal-content {
+      background: var(--dark-surface);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+      .chat-container {
+        margin: 0;
+        height: 100vh;
+        border-radius: 0;
+        border: none;
+      }
+
+      .chat-header {
+        padding: 1rem;
+      }
+
+      .header-title {
+        font-size: 1.1rem;
+      }
+
+      .message-wrapper {
+        max-width: 95%;
+      }
+
+      .suggested-prompts {
+        grid-template-columns: 1fr;
+      }
+
+      .quick-replies {
+        padding: 0.5rem;
+      }
+
+      .chat-input-container {
+        padding: 0.75rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+      }
+
+      .message {
+        padding: 0.75rem 1rem;
+      }
+
+      .header-controls {
+      flex-wrap: wrap;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes typing {
+      0%, 60%, 100% {
+        transform: translateY(0);
+      }
+      30% {
+        transform: translateY(-10px);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        opacity: 1;
+      }
+      50% {
+        opacity: 0.5;
+      }
+    }
+
+    /* Accessibility */
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    /* Print Styles */
+    @media print {
+      .chat-header,
+      .quick-replies,
+      .chat-input-container {
+        display: none;
+      }
+
+      .chat-container {
+        height: auto;
+        border: none;
+        box-shadow: none;
+      }
+
+      .message-actions {
+        display: none;
+      }
+    }
+
+    /* High Contrast Mode */
+    @media (prefers-contrast: high) {
+      :root {
+        --light-border: #000000;
+        --dark-border: #ffffff;
+      }
+    }
+
+    /* Focus Styles for Accessibility */
+    .action-btn:focus,
+    .quick-reply-btn:focus,
+    .send-btn:focus,
+    .input-action-btn:focus {
+      outline: 2px solid var(--primary-color);
+      outline-offset: 2px;
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <div class="chat-container">
+    <!-- Header -->
+      <div class="chat-header">
+        <h1 class="header-title">
+          <i class="bi bi-robot"></i>
+          ACCA Agent
+        </h1>
+        <div class="header-controls">
+          <div class="search-container" style="display: none;">
+            <input type="text" id="searchInput" class="search-input" placeholder="Search chat history...">
+            <i class="bi bi-search search-icon"></i>
+          </div>
+          <button id="searchBtn" class="btn btn-outline-secondary btn-sm" title="Search chat history">
+            <i class="bi bi-search"></i>
+          </button>
+          <button id="downloadBtn" class="btn btn-outline-secondary btn-sm" title="Download chat">
+            <i class="bi bi-download"></i>
+          </button>
+          <button id="shareBtn" class="btn btn-outline-secondary btn-sm" title="Share conversation">
+            <i class="bi bi-share"></i>
+          </button>
+          <button id="newChatBtn" class="btn btn-outline-secondary btn-sm" title="New chat">
+            <i class="bi bi-plus-circle"></i>
+          </button>
+          <button id="toggleDark" class="btn btn-outline-secondary btn-sm" title="Toggle dark mode">
+            <i class="bi bi-moon"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Pinned messages -->
+      <div class="pinned-messages" id="pinnedMessages">
+        <div class="d-flex align-items-center justify-content-between mb-2">
+          <small class="text-muted"><i class="bi bi-pin"></i> Pinned Messages</small>
+          <button class="btn btn-sm btn-outline-secondary" onclick="clearPinnedMessages()">Clear All</button>
+        </div>
+        <div id="pinnedList"></div>
+      </div>
+
+      <!-- Context indicator -->
+      <div class="context-indicator" id="contextIndicator" style="display: none;">
+        <i class="bi bi-arrow-return-right"></i>
+        <span id="contextText">Using context from previous message</span>
+    </div>
+
+    <!-- Chat messages -->
+      <div class="chat-messages" id="chatMessages">
+        <div class="intro-message" id="introMessage">
+          <h3>Welcome to ACCA Agent! 🎓</h3>
+          <p>Your AI-powered study companion for ACCA qualifications. Ask me anything about accounting standards, regulations, or exam preparation.</p>
+          
+          <div class="suggested-prompts">
+            <div class="prompt-card" onclick="sendMessage('Explain the key principles of IFRS 15 Revenue Recognition')">
+              <h5>📊 Revenue Recognition</h5>
+              <p>Learn about IFRS 15 and revenue recognition principles</p>
+            </div>
+            <div class="prompt-card" onclick="sendMessage('What are the differences between IFRS and GAAP?')">
+              <h5>📋 Standards Comparison</h5>
+              <p>Compare International and US accounting standards</p>
+            </div>
+            <div class="prompt-card" onclick="sendMessage('How should I prepare for the ACCA Strategic Business Leader exam?')">
+              <h5>📚 Exam Preparation</h5>
+              <p>Get study tips and exam strategies</p>
+            </div>
+            <div class="prompt-card" onclick="sendMessage('Explain consolidation accounting with examples')">
+              <h5>🏢 Consolidation</h5>
+              <p>Understand group accounting and consolidation</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    <!-- Quick reply buttons -->
+      <div class="quick-replies" id="quickReplies">
+        <button class="btn btn-sm btn-outline-primary quick-reply-btn" onclick="sendMessage('Summarize the key points')">
+          <i class="bi bi-list-ul"></i> Summarize
+        </button>
+        <button class="btn btn-sm btn-outline-primary quick-reply-btn" onclick="sendMessage('Explain this in simpler terms')">
+          <i class="bi bi-lightbulb"></i> Simplify
+        </button>
+        <button class="btn btn-sm btn-outline-primary quick-reply-btn" onclick="sendMessage('Give me a practical example')">
+          <i class="bi bi-clipboard-check"></i> Example
+        </button>
+        <button class="btn btn-sm btn-outline-primary quick-reply-btn" onclick="sendMessage('What are the exam implications?')">
+          <i class="bi bi-mortarboard"></i> Exam Tips
+        </button>
+        <button class="btn btn-sm btn-outline-primary quick-reply-btn" onclick="sendMessage('Show me the relevant standards')">
+          <i class="bi bi-book"></i> Standards
+        </button>
+    </div>
+
+    <!-- Input -->
+      <div class="chat-input-container">
+    <div class="chat-input">
+          <div class="input-group">
+            <textarea id="userInput" class="chat-input-field" placeholder="Ask me anything about ACCA, accounting standards, or exam preparation..." rows="1"></textarea>
+            <div class="input-actions">
+              <button class="input-action-btn" id="voiceBtn" title="Voice input">
+                <i class="bi bi-mic"></i>
+              </button>
+              <button class="input-action-btn" id="attachBtn" title="Attach file">
+                <i class="bi bi-paperclip"></i>
+              </button>
+            </div>
+          </div>
+          <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+            <i class="bi bi-send"></i>
+            <span>Send</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="modal" id="downloadModal">
+      <div class="modal-content">
+        <h4>Download Chat History</h4>
+        <p>Choose your preferred format:</p>
+        <div class="d-flex gap-2 mt-3">
+          <button class="btn btn-primary" onclick="downloadChat('pdf')">
+            <i class="bi bi-file-earmark-pdf"></i> PDF
+          </button>
+          <button class="btn btn-outline-primary" onclick="downloadChat('markdown')">
+            <i class="bi bi-markdown"></i> Markdown
+          </button>
+          <button class="btn btn-outline-primary" onclick="downloadChat('txt')">
+            <i class="bi bi-file-text"></i> Text
+          </button>
+        </div>
+        <button class="btn btn-secondary mt-3" onclick="closeModal('downloadModal')">Cancel</button>
+      </div>
+    </div>
+
+    <div class="modal" id="shareModal">
+      <div class="modal-content">
+        <h4>Share Conversation</h4>
+        <p>Share this conversation with others:</p>
+        <div class="input-group mb-3">
+          <input type="text" class="form-control" id="shareUrl" readonly>
+          <button class="btn btn-outline-secondary" onclick="copyShareUrl()">
+            <i class="bi bi-clipboard"></i>
+          </button>
+        </div>
+        <button class="btn btn-secondary" onclick="closeModal('shareModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Configuration and State
+    const API_URL = "https://aneniex.app.n8n.cloud/webhook/agent";
+    const sessionId = crypto.randomUUID();
+    
+    // DOM Elements
+    const chatMessages = document.getElementById("chatMessages");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+    const introMessage = document.getElementById("introMessage");
+    const contextIndicator = document.getElementById("contextIndicator");
+    const pinnedMessages = document.getElementById("pinnedMessages");
+    const pinnedList = document.getElementById("pinnedList");
+    const searchInput = document.getElementById("searchInput");
+    const searchContainer = document.querySelector(".search-container");
+
+    // State management
+    let chatHistory = [];
+    let pinnedItems = [];
+    let isLoading = false;
+    let lastBotMessageId = null;
+    let conversationContext = [];
+    let recognition = null;
+    let synthesis = null;
+    let currentSearchTerm = '';
+
+    // Initialize app
+    window.addEventListener('load', initializeApp);
+
+    function initializeApp() {
+      loadChatHistory();
+      loadPinnedMessages();
+      setupEventListeners();
+      setupSpeechRecognition();
+      setupTextToSpeech();
+      setupMarkdownRenderer();
+      applyStoredTheme();
+      
+      if (chatHistory.length === 0) {
+        introMessage.style.display = 'block';
+      } else {
+        hideIntroMessage();
+      }
+    }
+
+    function setupEventListeners() {
+      userInput.addEventListener('input', handleInputChange);
+      userInput.addEventListener('keydown', handleKeyDown);
+      
+      document.getElementById('toggleDark').addEventListener('click', toggleDarkMode);
+      document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+      document.getElementById('downloadBtn').addEventListener('click', showDownloadModal);
+      document.getElementById('shareBtn').addEventListener('click', showShareModal);
+      document.getElementById('searchBtn').addEventListener('click', toggleSearch);
+      document.getElementById('voiceBtn').addEventListener('click', toggleVoiceInput);
+      
+      searchInput.addEventListener('input', handleSearch);
+      document.addEventListener('click', handleModalClose);
+      document.addEventListener('keydown', handleGlobalKeyboard);
+    }
+
+    function setupMarkdownRenderer() {
+      marked.setOptions({
+        highlight: function(code, lang) {
+          if (lang && hljs.getLanguage(lang)) {
+            try {
+              return hljs.highlight(code, { language: lang }).value;
+            } catch (err) {}
+          }
+          return hljs.highlightAuto(code).value;
+        },
+        breaks: true,
+        gfm: true
+      });
+    }
+
+    function setupSpeechRecognition() {
+      if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        recognition = new SpeechRecognition();
+        recognition.continuous = false;
+        recognition.interimResults = false;
+        recognition.lang = 'en-US';
+        
+        recognition.onresult = function(event) {
+          const transcript = event.results[0][0].transcript;
+          userInput.value = transcript;
+          handleInputChange();
+        };
+        
+        recognition.onerror = function(event) {
+          console.error('Speech recognition error:', event.error);
+          showNotification('Speech recognition failed. Please try again.', 'error');
+        };
+      }
+    }
+
+    function setupTextToSpeech() {
+      if ('speechSynthesis' in window) {
+        synthesis = window.speechSynthesis;
+      }
+    }
+
+    function handleInputChange() {
+      userInput.style.height = 'auto';
+      userInput.style.height = Math.min(userInput.scrollHeight, 120) + 'px';
+      
+      const hasText = userInput.value.trim().length > 0;
+      sendBtn.disabled = !hasText || isLoading;
+    }
+
+    function handleKeyDown(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        sendMessage();
+      }
+    }
+
+    function handleGlobalKeyboard(e) {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+        e.preventDefault();
+        sendMessage();
+      }
+      
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        toggleSearch();
+      }
+      
+      if (e.key === 'Escape') {
+        closeAllModals();
+        if (searchContainer.style.display !== 'none') {
+          toggleSearch();
+        }
+      }
+    }
+
+    function loadChatHistory() {
+      const stored = localStorage.getItem('chatHistory');
+      if (stored) {
+        chatHistory = JSON.parse(stored);
+        chatHistory.forEach(msg => renderMessage(msg, false));
+      }
+    }
+
+    function loadPinnedMessages() {
+      const stored = localStorage.getItem('pinnedMessages');
+      if (stored) {
+        pinnedItems = JSON.parse(stored);
+        renderPinnedMessages();
+      }
+    }
+
+    function saveChatHistory() {
+      localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
+    }
+
+    function savePinnedMessages() {
+      localStorage.setItem('pinnedMessages', JSON.stringify(pinnedItems));
+    }
+
+    function applyStoredTheme() {
+      const isDark = localStorage.getItem('darkMode') === 'true';
+      if (isDark) {
+        document.body.classList.add('dark-mode');
+        document.getElementById('toggleDark').innerHTML = '<i class="bi bi-sun"></i>';
+      }
+    }
+
+    async function sendMessage(text = null) {
+      const message = text || userInput.value.trim();
+      if (!message || isLoading) return;
+
+      hideIntroMessage();
+      
+      const userMsg = {
+        id: generateId(),
+        text: message,
+        sender: 'user',
+        timestamp: new Date().toISOString(),
+        isUser: true
+      };
+      
+      chatHistory.push(userMsg);
+      renderMessage(userMsg);
+      saveChatHistory();
+      
+      userInput.value = '';
+      handleInputChange();
+      
+      showLoadingIndicator();
+      updateConversationContext(message);
+      
+      try {
+        const response = await fetch(`${API_URL}?input=${encodeURIComponent(message)}&sessionId=${sessionId}`);
+        const data = await response.json();
+        
+        hideLoadingIndicator();
+        
+        const reply = data[0]?.output || "⚠️ I apologize, but I didn't receive a proper response. Please try again.";
+        
+        const botMsg = {
+          id: generateId(),
+          text: reply,
+          sender: 'bot',
+          timestamp: new Date().toISOString(),
+          isUser: false
+        };
+        
+        chatHistory.push(botMsg);
+        renderMessage(botMsg);
+        saveChatHistory();
+        
+        lastBotMessageId = botMsg.id;
+        
+        if (conversationContext.length > 1) {
+          showContextIndicator();
+        }
+        
+      } catch (error) {
+        hideLoadingIndicator();
+        console.error('API Error:', error);
+        
+        const errorMsg = {
+          id: generateId(),
+          text: "❌ I'm having trouble connecting right now. Please check your internet connection and try again.",
+          sender: 'bot',
+          timestamp: new Date().toISOString(),
+          isUser: false
+        };
+        
+        chatHistory.push(errorMsg);
+        renderMessage(errorMsg);
+        saveChatHistory();
+      }
+    }
+
+    // Utility functions
+    function generateId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
+    }
+
+    function formatTimestamp(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.className = `alert alert-${type === 'error' ? 'danger' : type === 'success' ? 'success' : 'info'} position-fixed`;
+      notification.style.cssText = 'top: 20px; right: 20px; z-index: 9999; max-width: 300px;';
+      notification.textContent = message;
+      
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.opacity = '0';
+        setTimeout(() => {
+          if (notification.parentNode) {
+            notification.parentNode.removeChild(notification);
+          }
+        }, 300);
+      }, 3000);
+    }
+
+    function renderMessage(message, animate = true) {
+      const wrapper = document.createElement('div');
+      wrapper.className = `message-wrapper ${message.isUser ? 'user' : ''}`;
+      wrapper.dataset.messageId = message.id;
+      if (animate) wrapper.style.opacity = '0';
+
+      const avatar = document.createElement('div');
+      avatar.className = `avatar ${message.isUser ? 'user-avatar' : 'bot-avatar'}`;
+      avatar.innerHTML = message.isUser ? '<i class="bi bi-person"></i>' : '<i class="bi bi-robot"></i>';
+
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `message ${message.isUser ? 'user-message' : 'bot-message'}`;
+      
+      const content = document.createElement('div');
+      content.className = 'message-content';
+      
+      if (message.isUser) {
+        content.textContent = message.text;
+      } else {
+        const renderedContent = marked.parse(message.text);
+        content.innerHTML = renderedContent;
+        highlightACCATerms(content);
+        if (message.text.length > 500) {
+          makeExpandable(content, messageDiv);
+        }
+      }
+
+      const meta = document.createElement('div');
+      meta.className = 'message-meta';
+      
+      const timestamp = document.createElement('span');
+      timestamp.className = 'message-timestamp';
+      timestamp.textContent = formatTimestamp(message.timestamp);
+      
+      const actions = document.createElement('div');
+      actions.className = 'message-actions';
+      
+      if (!message.isUser) {
+        const copyBtn = createActionButton('bi-clipboard', 'Copy', () => copyMessage(message.text));
+        actions.appendChild(copyBtn);
+        
+        const pinBtn = createActionButton('bi-pin', 'Pin', () => pinMessage(message));
+        actions.appendChild(pinBtn);
+        
+        if (synthesis) {
+          const speakBtn = createActionButton('bi-volume-up', 'Read aloud', () => speakMessage(message.text));
+          actions.appendChild(speakBtn);
+        }
+        
+        const ratingContainer = document.createElement('div');
+        ratingContainer.className = 'rating-container';
+        
+        const thumbsUp = createRatingButton('bi-hand-thumbs-up', 'positive', message.id);
+        const thumbsDown = createRatingButton('bi-hand-thumbs-down', 'negative', message.id);
+        
+        ratingContainer.appendChild(thumbsUp);
+        ratingContainer.appendChild(thumbsDown);
+        actions.appendChild(ratingContainer);
+      }
+
+      meta.appendChild(timestamp);
+      meta.appendChild(actions);
+      
+      messageDiv.appendChild(content);
+      messageDiv.appendChild(meta);
+      
+      wrapper.appendChild(avatar);
+      wrapper.appendChild(messageDiv);
+      
+      chatMessages.appendChild(wrapper);
+      
+      if (animate) {
+        requestAnimationFrame(() => {
+          wrapper.style.opacity = '1';
+        });
+      }
+      
+      scrollToBottom();
+      
+      if (!message.isUser) {
+        wrapper.querySelectorAll('pre code').forEach(block => {
+          hljs.highlightElement(block);
+        });
+      }
+    }
+
+    function createActionButton(iconClass, title, onClick) {
+      const btn = document.createElement('button');
+      btn.className = 'action-btn';
+      btn.title = title;
+      btn.innerHTML = `<i class="bi ${iconClass}"></i>`;
+      btn.onclick = onClick;
+      return btn;
+    }
+
+    function createRatingButton(iconClass, type, messageId) {
+      const btn = document.createElement('button');
+      btn.className = `rating-btn ${type}`;
+      btn.innerHTML = `<i class="bi ${iconClass}"></i>`;
+      btn.onclick = () => rateMessage(messageId, type);
+      return btn;
+    }
+
+    function highlightACCATerms(element) {
+      const accaTerms = [
+        'IFRS', 'GAAP', 'IAS', 'ACCA', 'Financial Reporting', 'Audit', 'Taxation',
+        'Management Accounting', 'Corporate Law', 'Business Analysis', 'Strategic Business',
+        'Revenue Recognition', 'Consolidation', 'Fair Value', 'Impairment',
+        'Cash Flow', 'Balance Sheet', 'Income Statement', 'Equity', 'Liability'
+      ];
+      
+      let html = element.innerHTML;
+      accaTerms.forEach(term => {
+        const regex = new RegExp(`\\b(${term})\\b`, 'gi');
+        html = html.replace(regex, '<strong>$1</strong>');
+      });
+      element.innerHTML = html;
+    }
+
+    function makeExpandable(content, messageDiv) {
+      content.classList.add('expandable-content', 'collapsed');
+      
+      const expandBtn = document.createElement('button');
+      expandBtn.className = 'expand-btn';
+      expandBtn.textContent = 'Read more';
+      expandBtn.onclick = () => {
+        if (content.classList.contains('collapsed')) {
+          content.classList.remove('collapsed');
+          expandBtn.textContent = 'Show less';
+        } else {
+          content.classList.add('collapsed');
+          expandBtn.textContent = 'Read more';
+        }
+      };
+      
+      messageDiv.appendChild(expandBtn);
+    }
+
+    function copyMessage(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        showNotification('Message copied to clipboard!', 'success');
+      }).catch(() => {
+        showNotification('Failed to copy message', 'error');
+      });
+    }
+
+    function pinMessage(message) {
+      const existing = pinnedItems.find(item => item.id === message.id);
+      if (existing) {
+        showNotification('Message is already pinned', 'info');
+        return;
+      }
+      
+      pinnedItems.push({
+        id: message.id,
+        text: message.text.substring(0, 100) + (message.text.length > 100 ? '...' : ''),
+        fullText: message.text,
+        timestamp: message.timestamp
+      });
+      
+      savePinnedMessages();
+      renderPinnedMessages();
+      showNotification('Message pinned!', 'success');
+    }
+
+    function speakMessage(text) {
+      if (!synthesis) return;
+      
+      synthesis.cancel();
+      
+      const cleanText = text.replace(/[#*_`]/g, '').replace(/\n+/g, ' ');
+      
+      const utterance = new SpeechSynthesisUtterance(cleanText);
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      utterance.volume = 0.8;
+      
+      synthesis.speak(utterance);
+    }
+
+    function rateMessage(messageId, rating) {
+      const ratings = JSON.parse(localStorage.getItem('messageRatings') || '{}');
+      ratings[messageId] = rating;
+      localStorage.setItem('messageRatings', JSON.stringify(ratings));
+      
+      const wrapper = document.querySelector(`[data-message-id="${messageId}"]`);
+      if (wrapper) {
+        const ratingBtns = wrapper.querySelectorAll('.rating-btn');
+        ratingBtns.forEach(btn => btn.classList.remove('active'));
+        
+        const activeBtn = wrapper.querySelector(`.rating-btn.${rating}`);
+        if (activeBtn) activeBtn.classList.add('active');
+      }
+      
+      showNotification(`Thank you for your feedback!`, 'success');
+    }
+
+    function renderPinnedMessages() {
+      if (pinnedItems.length === 0) {
+        pinnedMessages.classList.remove('has-pins');
+        return;
+      }
+      
+      pinnedMessages.classList.add('has-pins');
+      pinnedList.innerHTML = '';
+      
+      pinnedItems.forEach(item => {
+        const pinnedItem = document.createElement('div');
+        pinnedItem.className = 'pinned-item';
+        pinnedItem.innerHTML = `
+          <span>${item.text}</span>
+          <button class="btn btn-sm btn-outline-danger" onclick="unpinMessage('${item.id}')">
+            <i class="bi bi-x"></i>
+          </button>
+        `;
+        pinnedItem.onclick = (e) => {
+          if (e.target.tagName !== 'BUTTON') {
+            scrollToMessage(item.id);
+          }
+        };
+        pinnedList.appendChild(pinnedItem);
+      });
+    }
+
+    function unpinMessage(messageId) {
+      pinnedItems = pinnedItems.filter(item => item.id !== messageId);
+      savePinnedMessages();
+      renderPinnedMessages();
+      showNotification('Message unpinned', 'info');
+    }
+
+    function clearPinnedMessages() {
+      pinnedItems = [];
+      savePinnedMessages();
+      renderPinnedMessages();
+      showNotification('All pinned messages cleared', 'info');
+    }
+
+    function scrollToMessage(messageId) {
+      const element = document.querySelector(`[data-message-id="${messageId}"]`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        element.style.background = 'rgba(0, 102, 204, 0.1)';
+        setTimeout(() => {
+          element.style.background = '';
+        }, 2000);
+      }
+    }
+
+    function showLoadingIndicator() {
+      isLoading = true;
+      sendBtn.disabled = true;
+      
+      const loadingDiv = document.createElement('div');
+      loadingDiv.className = 'loading-indicator';
+      loadingDiv.id = 'loadingIndicator';
+      loadingDiv.innerHTML = `
+        <div class="avatar bot-avatar">
+          <i class="bi bi-robot"></i>
+        </div>
+        <div>
+          <span>ACCA Agent is thinking</span>
+          <div class="typing-dots">
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+            <div class="typing-dot"></div>
+          </div>
+        </div>
+      `;
+      
+      chatMessages.appendChild(loadingDiv);
+      scrollToBottom();
+    }
+
+    function hideLoadingIndicator() {
+      isLoading = false;
+      handleInputChange();
+      
+      const loadingDiv = document.getElementById('loadingIndicator');
+      if (loadingDiv) {
+        loadingDiv.remove();
+      }
+    }
+
+    function updateConversationContext(message) {
+      conversationContext.push(message);
+      if (conversationContext.length > 5) {
+        conversationContext = conversationContext.slice(-5);
+      }
+    }
+
+    function showContextIndicator() {
+      contextIndicator.style.display = 'flex';
+      setTimeout(() => {
+        contextIndicator.style.display = 'none';
+      }, 3000);
+    }
+
+    function hideIntroMessage() {
+      if (introMessage) {
+        introMessage.style.display = 'none';
+      }
+    }
+
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark-mode');
+      const isDark = document.body.classList.contains('dark-mode');
+      localStorage.setItem('darkMode', isDark);
+      
+      const icon = document.getElementById('toggleDark').querySelector('i');
+      icon.className = isDark ? 'bi bi-sun' : 'bi bi-moon';
+    }
+
+    function startNewChat() {
+      if (chatHistory.length === 0) return;
+      
+      if (confirm('Start a new chat? This will clear your current conversation.')) {
+        chatHistory = [];
+        conversationContext = [];
+        saveChatHistory();
+        
+        const messages = chatMessages.querySelectorAll('.message-wrapper, .loading-indicator');
+        messages.forEach(msg => msg.remove());
+        
+        introMessage.style.display = 'block';
+        
+        showNotification('New chat started', 'success');
+      }
+    }
+
+    function toggleSearch() {
+      const isVisible = searchContainer.style.display !== 'none';
+      searchContainer.style.display = isVisible ? 'none' : 'block';
+      
+      if (!isVisible) {
+        searchInput.focus();
+      } else {
+        searchInput.value = '';
+        clearSearch();
+      }
+    }
+
+    function handleSearch() {
+      const term = searchInput.value.toLowerCase().trim();
+      currentSearchTerm = term;
+      
+      if (!term) {
+        clearSearch();
+        return;
+      }
+      
+      const messageWrappers = chatMessages.querySelectorAll('.message-wrapper');
+      let hasResults = false;
+      
+      messageWrappers.forEach(wrapper => {
+        const messageContent = wrapper.querySelector('.message-content');
+        const text = messageContent.textContent.toLowerCase();
+        
+        if (text.includes(term)) {
+          wrapper.style.display = 'flex';
+          highlightSearchTerm(messageContent, term);
+          hasResults = true;
+        } else {
+          wrapper.style.display = 'none';
+        }
+      });
+      
+      if (!hasResults) {
+        showNotification('No messages found matching your search', 'info');
+      }
+    }
+
+    function clearSearch() {
+      const messageWrappers = chatMessages.querySelectorAll('.message-wrapper');
+      messageWrappers.forEach(wrapper => {
+        wrapper.style.display = 'flex';
+        const messageContent = wrapper.querySelector('.message-content');
+        removeHighlights(messageContent);
+      });
+    }
+
+    function highlightSearchTerm(element, term) {
+      removeHighlights(element);
+      
+      const walker = document.createTreeWalker(
+        element,
+        NodeFilter.SHOW_TEXT,
+        null,
+        false
+      );
+      
+      const textNodes = [];
+      let node;
+      while (node = walker.nextNode()) {
+        textNodes.push(node);
+      }
+      
+      textNodes.forEach(textNode => {
+        const text = textNode.textContent;
+        const regex = new RegExp(`(${term})`, 'gi');
+        
+        if (regex.test(text)) {
+          const highlightedText = text.replace(regex, '<mark>$1</mark>');
+          const wrapper = document.createElement('span');
+          wrapper.innerHTML = highlightedText;
+          textNode.parentNode.replaceChild(wrapper, textNode);
+        }
+      });
+    }
+
+    function removeHighlights(element) {
+      const marks = element.querySelectorAll('mark');
+      marks.forEach(mark => {
+        mark.outerHTML = mark.innerHTML;
+      });
+    }
+
+    function toggleVoiceInput() {
+      if (!recognition) {
+        showNotification('Voice input not supported in this browser', 'error');
+        return;
+      }
+      
+      if (recognition.state === 'listening') {
+        recognition.stop();
+        document.getElementById('voiceBtn').innerHTML = '<i class="bi bi-mic"></i>';
+      } else {
+        recognition.start();
+        document.getElementById('voiceBtn').innerHTML = '<i class="bi bi-mic-fill text-danger"></i>';
+        showNotification('Listening... Speak now', 'info');
+      }
+    }
+
+    function showDownloadModal() {
+      document.getElementById('downloadModal').classList.add('show');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('show');
+    }
+
+    function closeAllModals() {
+      document.querySelectorAll('.modal').forEach(modal => {
+        modal.classList.remove('show');
+      });
+    }
+
+    function handleModalClose(e) {
+      if (e.target.classList.contains('modal')) {
+        e.target.classList.remove('show');
+      }
+    }
+
+    function downloadChat(format) {
+      closeModal('downloadModal');
+      
+      const timestamp = new Date().toISOString().split('T')[0];
+      const filename = `acca-chat-${timestamp}`;
+      
+      switch (format) {
+        case 'pdf':
+          downloadAsPDF(filename);
+          break;
+        case 'markdown':
+          downloadAsMarkdown(filename);
+          break;
+        case 'txt':
+          downloadAsText(filename);
+          break;
+      }
+    }
+
+    function downloadAsPDF(filename) {
+      try {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        
+        let yPosition = 20;
+        const pageHeight = doc.internal.pageSize.height;
+        const margin = 20;
+        const maxWidth = doc.internal.pageSize.width - 2 * margin;
+        
+        doc.setFontSize(16);
+        doc.text('ACCA Agent Chat History', margin, yPosition);
+        yPosition += 20;
+        
+        chatHistory.forEach(msg => {
+          if (yPosition > pageHeight - 40) {
+            doc.addPage();
+            yPosition = 20;
+          }
+          
+          doc.setFontSize(12);
+          doc.setFont(undefined, msg.isUser ? 'bold' : 'normal');
+          
+          const sender = msg.isUser ? 'You' : 'ACCA Agent';
+          const timestamp = formatTimestamp(msg.timestamp);
+          
+          doc.text(`${sender} (${timestamp}):`, margin, yPosition);
+          yPosition += 10;
+          
+          doc.setFont(undefined, 'normal');
+          const lines = doc.splitTextToSize(msg.text, maxWidth);
+          doc.text(lines, margin, yPosition);
+          yPosition += lines.length * 5 + 10;
+        });
+        
+        doc.save(`${filename}.pdf`);
+        showNotification('Chat downloaded as PDF', 'success');
+      } catch (error) {
+        showNotification('Failed to generate PDF', 'error');
+      }
+    }
+
+    function downloadAsMarkdown(filename) {
+      let markdown = '# ACCA Agent Chat History\n\n';
+      
+      chatHistory.forEach(msg => {
+        const sender = msg.isUser ? '**You**' : '**ACCA Agent**';
+        const timestamp = formatTimestamp(msg.timestamp);
+        
+        markdown += `## ${sender} _(${timestamp})_\n\n`;
+        markdown += `${msg.text}\n\n---\n\n`;
+      });
+      
+      downloadFile(markdown, `${filename}.md`, 'text/markdown');
+      showNotification('Chat downloaded as Markdown', 'success');
+    }
+
+    function downloadAsText(filename) {
+      let text = 'ACCA Agent Chat History\n';
+      text += '='.repeat(25) + '\n\n';
+      
+      chatHistory.forEach(msg => {
+        const sender = msg.isUser ? 'You' : 'ACCA Agent';
+        const timestamp = formatTimestamp(msg.timestamp);
+        
+        text += `${sender} (${timestamp}):\n`;
+        text += `${msg.text}\n\n`;
+        text += '-'.repeat(50) + '\n\n';
+      });
+      
+      downloadFile(text, `${filename}.txt`, 'text/plain');
+      showNotification('Chat downloaded as text file', 'success');
+    }
+
+    function downloadFile(content, filename, mimeType) {
+      const blob = new Blob([content], { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    // Share functionality
+    function generateShareUrl() {
+      const shareData = {
+        chatHistory: chatHistory,
+        timestamp: new Date().toISOString(),
+        title: 'ACCA Agent Conversation'
+      };
+      
+      const compressed = btoa(JSON.stringify(shareData));
+      const shareUrl = `${window.location.origin}${window.location.pathname}?shared=${compressed}`;
+      return shareUrl;
+    }
+
+    function showShareModal() {
+      const shareUrl = generateShareUrl();
+      document.getElementById('shareUrl').value = shareUrl;
+      document.getElementById('shareModal').classList.add('show');
+    }
+
+    function copyShareUrl() {
+      const shareUrl = document.getElementById('shareUrl');
+      shareUrl.select();
+      navigator.clipboard.writeText(shareUrl.value).then(() => {
+        showNotification('Share URL copied to clipboard!', 'success');
+      }).catch(() => {
+        showNotification('Failed to copy URL', 'error');
+      });
+    }
+
+    function loadSharedConversation() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const shared = urlParams.get('shared');
+      
+      if (shared) {
+        try {
+          const shareData = JSON.parse(atob(shared));
+          if (shareData.chatHistory && Array.isArray(shareData.chatHistory)) {
+            chatHistory = shareData.chatHistory;
+            chatHistory.forEach(msg => renderMessage(msg, false));
+            hideIntroMessage();
+            showNotification('Shared conversation loaded!', 'success');
+          }
+        } catch (error) {
+          console.error('Failed to load shared conversation:', error);
+          showNotification('Failed to load shared conversation', 'error');
+        }
+      }
+    }
+
+    // Advanced theming
+    function applyCustomTheme(theme) {
+      const root = document.documentElement;
+      
+      Object.entries(theme).forEach(([property, value]) => {
+        root.style.setProperty(`--${property}`, value);
+      });
+      
+      localStorage.setItem('customTheme', JSON.stringify(theme));
+    }
+
+    function loadCustomTheme() {
+      const stored = localStorage.getItem('customTheme');
+      if (stored) {
+        try {
+          const theme = JSON.parse(stored);
+          applyCustomTheme(theme);
+        } catch (error) {
+          console.error('Failed to load custom theme:', error);
+        }
+      }
+    }
+
+    // PWA Install prompt
+    let deferredPrompt;
+    
+    window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+      deferredPrompt = e;
+      
+      // Show install button
+      const installBtn = document.createElement('button');
+      installBtn.className = 'btn btn-outline-primary btn-sm';
+      installBtn.innerHTML = '<i class="bi bi-download"></i> Install App';
+      installBtn.onclick = installApp;
+      
+      document.querySelector('.header-controls').appendChild(installBtn);
+    });
+
+    function installApp() {
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then((choiceResult) => {
+          if (choiceResult.outcome === 'accepted') {
+            showNotification('ACCA Agent installed successfully!', 'success');
+          }
+          deferredPrompt = null;
+        });
+      }
+    }
+
+    // Analytics (simple local tracking)
+    function trackUsage(action, data = {}) {
+      const usage = JSON.parse(localStorage.getItem('usage') || '{}');
+      const today = new Date().toDateString();
+      
+      if (!usage[today]) {
+        usage[today] = {};
+      }
+      
+      if (!usage[today][action]) {
+        usage[today][action] = 0;
+      }
+      
+      usage[today][action]++;
+      
+      localStorage.setItem('usage', JSON.stringify(usage));
+    }
+
+    function getUsageStats() {
+      const usage = JSON.parse(localStorage.getItem('usage') || '{}');
+      const today = new Date().toDateString();
+      
+      return {
+        today: usage[today] || {},
+        total: Object.values(usage).reduce((total, day) => {
+          Object.entries(day).forEach(([action, count]) => {
+            total[action] = (total[action] || 0) + count;
+          });
+          return total;
+        }, {})
+      };
+    }
+
+    // Enhanced error handling with ACCA context
+    function handleACCAError(error, context = '') {
+      console.error('ACCA Agent Error:', error);
+      
+      const errorMessages = {
+        'network': "I'm having trouble connecting to my knowledge base. This might affect my ability to provide the most current ACCA standards and regulations.",
+        'api': "My AI processing is temporarily unavailable. For urgent ACCA queries, please refer to the official ACCA website or your study materials.",
+        'parsing': "I had trouble understanding your question. Could you rephrase it? For ACCA topics, try being specific about which paper or standard you're asking about.",
+        'validation': "There seems to be an issue with your input. Make sure you're asking about ACCA-related topics like Financial Reporting, Audit, or Strategic Business."
+      };
+      
+      const message = errorMessages[context] || "I encountered an unexpected error. Please try again, and if the problem persists, consider starting a new chat session.";
+      
+      const errorMsg = {
+        id: generateId(),
+        text: `⚠️ ${message}`,
+        sender: 'bot',
+        timestamp: new Date().toISOString(),
+        isUser: false
+      };
+      
+      chatHistory.push(errorMsg);
+      renderMessage(errorMsg);
+      saveChatHistory();
+      
+      trackUsage('error', { type: context });
+    }
+
+    // Keyboard shortcuts help
+    function showKeyboardShortcuts() {
+      const shortcuts = [
+        { key: 'Enter', action: 'Send message' },
+        { key: 'Shift + Enter', action: 'New line in message' },
+        { key: 'Ctrl/Cmd + Enter', action: 'Send message (alternative)' },
+        { key: 'Ctrl/Cmd + K', action: 'Search chat history' },
+        { key: 'Escape', action: 'Close modals/search' }
+      ];
+      
+      const helpText = shortcuts.map(s => `**${s.key}**: ${s.action}`).join('\n');
+      
+      const helpMsg = {
+        id: generateId(),
+        text: `## Keyboard Shortcuts\n\n${helpText}\n\nThese shortcuts will help you navigate ACCA Agent more efficiently!`,
+        sender: 'bot',
+        timestamp: new Date().toISOString(),
+        isUser: false
+      };
+      
+      chatHistory.push(helpMsg);
+      renderMessage(helpMsg);
+      saveChatHistory();
+    }
+
+    // Initialize additional features
+    function initializeAdvancedFeatures() {
+      loadCustomTheme();
+      loadSharedConversation();
+      
+      // Add keyboard shortcut help to quick replies
+      const helpBtn = document.createElement('button');
+      helpBtn.className = 'btn btn-sm btn-outline-secondary quick-reply-btn';
+      helpBtn.innerHTML = '<i class="bi bi-question-circle"></i> Help';
+      helpBtn.onclick = showKeyboardShortcuts;
+      document.getElementById('quickReplies').appendChild(helpBtn);
+      
+      // Track page load
+      trackUsage('pageLoad');
+    }
+
+    // Update initialization
+    const originalInit = initializeApp;
+    initializeApp = function() {
+      originalInit();
+      initializeAdvancedFeatures();
+    };
+
+    // Service Worker registration (already in original code but enhanced)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').then(registration => {
+        console.log('SW registered:', registration);
+        showNotification('ACCA Agent is ready for offline use!', 'success');
+      }).catch(error => {
+        console.error('SW registration failed:', error);
+      });
+    }
+  </script>
+</body>
+</html>

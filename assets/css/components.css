@@ -1,0 +1,163 @@
+/* Component Styles - Intro, Modals, Ratings, etc. */
+.intro-message {
+  text-align: center;
+  padding: 2rem;
+  color: var(--secondary-color);
+}
+
+.intro-message h3 {
+  color: var(--primary-color);
+  margin-bottom: 1rem;
+}
+
+.suggested-prompts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.prompt-card {
+  background: var(--light-surface);
+  border: 1px solid var(--light-border);
+  border-radius: 12px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+body.dark-mode .prompt-card {
+  background: #2a2a2a;
+  border-color: var(--dark-border);
+}
+
+.prompt-card:hover {
+  border-color: var(--primary-color);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow);
+}
+
+.prompt-card h5 {
+  color: var(--primary-color);
+  margin-bottom: 0.5rem;
+}
+
+.context-indicator {
+  background: rgba(0, 102, 204, 0.1);
+  border: 1px solid rgba(0, 102, 204, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.pinned-messages {
+  background: var(--light-bg);
+  border-bottom: 1px solid var(--light-border);
+  padding: 0.5rem 1rem;
+  display: none;
+}
+
+body.dark-mode .pinned-messages {
+  background: #2a2a2a;
+  border-color: var(--dark-border);
+}
+
+.pinned-messages.has-pins {
+  display: block;
+}
+
+.pinned-item {
+  background: var(--light-surface);
+  border: 1px solid var(--light-border);
+  border-radius: 8px;
+  padding: 0.5rem;
+  margin: 0.25rem 0;
+  font-size: 0.875rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+body.dark-mode .pinned-item {
+  background: var(--dark-surface);
+  border-color: var(--dark-border);
+}
+
+.rating-container {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  align-items: center;
+}
+
+.rating-btn {
+  background: none;
+  border: 1px solid var(--light-border);
+  border-radius: 20px;
+  padding: 0.25rem 0.75rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+body.dark-mode .rating-btn {
+  border-color: var(--dark-border);
+}
+
+.rating-btn:hover {
+  background: var(--light-bg);
+}
+
+body.dark-mode .rating-btn:hover {
+  background: #2a2a2a;
+}
+
+.rating-btn.positive {
+  color: var(--success-color);
+  border-color: var(--success-color);
+}
+
+.rating-btn.negative {
+  color: var(--danger-color);
+  border-color: var(--danger-color);
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--light-surface);
+  border-radius: 16px;
+  padding: 2rem;
+  max-width: 500px;
+  width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+body.dark-mode .modal-content {
+  background: var(--dark-surface);
+}

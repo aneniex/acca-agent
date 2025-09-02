@@ -1,0 +1,69 @@
+{
+  "name": "ACCA Agent - AI Study Companion",
+  "short_name": "ACCA Agent",
+  "description": "Your AI-powered study companion for ACCA qualifications. Get help with accounting standards, regulations, and exam preparation.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0066cc",
+  "theme_color": "#0066cc",
+  "orientation": "portrait-primary",
+  "categories": ["education", "productivity", "business"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "favicon.ico",
+      "sizes": "16x16 32x32 48x48",
+      "type": "image/x-icon",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230066cc'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>🤖</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%230066cc'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>🤖</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 800'><rect width='400' height='800' fill='%23f8f9fa'/><rect x='20' y='20' width='360' height='760' rx='16' fill='white' stroke='%23dee2e6'/><rect x='40' y='40' width='320' height='60' fill='%230066cc'/><text x='200' y='75' font-size='20' text-anchor='middle' fill='white'>ACCA Agent</text><rect x='40' y='120' width='200' height='40' rx='20' fill='%23e9ecef'/><text x='140' y='145' font-size='14' text-anchor='middle' fill='%23495057'>Ask about ACCA...</text></svg>",
+      "sizes": "400x800",
+      "type": "image/svg+xml",
+      "form_factor": "narrow",
+      "label": "ACCA Agent mobile interface"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "New Chat",
+      "short_name": "New Chat",
+      "description": "Start a new conversation",
+      "url": "/?action=new",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2328a745'/><text x='50' y='60' font-size='60' text-anchor='middle' fill='white'>+</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "ACCA Standards",
+      "short_name": "Standards",
+      "description": "Ask about ACCA standards",
+      "url": "/?prompt=Tell%20me%20about%20ACCA%20standards",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23007bff'/><text x='50' y='60' font-size='40' text-anchor='middle' fill='white'>📋</text></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ]
+}
