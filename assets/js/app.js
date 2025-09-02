@@ -42,6 +42,7 @@ const App = {
     this.setupPWAInstall();
     this.addHelpButton();
     this.registerServiceWorker();
+    this.setupDebugMode();
   },
 
   // Load custom theme
@@ -129,6 +130,23 @@ const App = {
         // Don't show error notification for service worker issues
         // as they're not critical for basic functionality
       });
+    }
+  },
+
+  // Setup debug mode (show debug button in development)
+  setupDebugMode() {
+    // Show debug button in development or when there are API issues
+    const debugBtn = document.getElementById('debugBtn');
+    if (debugBtn) {
+      // Show debug button if we're on localhost or if there are console errors
+      const isLocalhost = window.location.hostname === 'localhost' || 
+                         window.location.hostname === '127.0.0.1' ||
+                         window.location.hostname.includes('localhost');
+      
+      if (isLocalhost || window.location.hostname.includes('github.io')) {
+        debugBtn.style.display = 'inline-block';
+        console.log('🐛 Debug mode enabled - Debug button visible');
+      }
     }
   }
 };

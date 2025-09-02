@@ -24,6 +24,12 @@ const EventManager = {
     document.getElementById('searchBtn').addEventListener('click', () => UI.toggleSearch());
     document.getElementById('voiceBtn').addEventListener('click', () => SpeechManager.toggleVoiceInput());
     document.getElementById('sendBtn').addEventListener('click', () => ChatManager.sendMessage());
+    
+    // Debug button (only show in development)
+    const debugBtn = document.getElementById('debugBtn');
+    if (debugBtn) {
+      debugBtn.addEventListener('click', () => this.handleDebugClick());
+    }
   },
 
   // Setup keyboard shortcuts
@@ -71,6 +77,41 @@ const EventManager = {
   handleModalClose(e) {
     if (e.target.classList.contains('modal')) {
       e.target.classList.remove('show');
+    }
+  },
+
+  // Handle debug button click
+  async handleDebugClick() {
+    try {
+      console.log('🔍 Debug: Testing API connection...');
+      
+      // Show debug button as loading
+      const debugBtn = document.getElementById('debugBtn');
+      const originalText = debugBtn.innerHTML;
+      debugBtn.innerHTML = '<i class="bi bi-hourglass-split"></i>';
+      debugBtn.disabled = true;
+      
+      // Test API connection
+      const result = await API.testConnection();
+      
+      if (result.success) {
+        console.log('✅ API Test Successful:', result.data);
+        Utils.showNotification('API connection successful! Check console for details.', 'success');
+      } else {
+        console.log('❌ API Test Failed:', result);
+        Utils.showNotification(`API test failed: ${result.error}`, 'error');
+      }
+      
+      // Restore button
+      debugBtn.innerHTML = originalText;
+      debugBtn.disabled = false;
+      
+    } catch (error) {
+      console.error('Debug Error:', error);
+      const debugBtn = document.getElementById('debugBtn');
+      debugBtn.innerHTML = '<i class="bi bi-bug"></i>';
+      debugBtn.disabled = false;
+      Utils.showNotification('Debug test failed. Check console for details.', 'error');
     }
   }
 };
