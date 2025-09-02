@@ -69,6 +69,24 @@ const ChatManager = {
     UI.elements.userInput.value = '';
     UI.handleInputChange();
     
+    // Check canned responses before API
+    const canned = window.CannedResponses && CannedResponses.getReply(message);
+    if (canned) {
+      const botMsg = {
+        id: Utils.generateId(),
+        text: canned,
+        sender: 'bot',
+        timestamp: new Date().toISOString(),
+        isUser: false
+      };
+      this.chatHistory.push(botMsg);
+      MessageManager.renderMessage(botMsg);
+      this.saveChatHistory();
+      this.lastBotMessageId = botMsg.id;
+      this.updateConversationContext(message);
+      return;
+    }
+    
     // Show loading indicator
     this.isLoading = true;
     UI.elements.sendBtn.disabled = true;

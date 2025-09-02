@@ -18,6 +18,7 @@ const urlsToCache = [
   './assets/js/api.js',
   './assets/js/ui.js',
   './assets/js/messages.js',
+  './assets/js/canned.js',
   './assets/js/chat.js',
   './assets/js/search.js',
   './assets/js/pinned.js',
