@@ -124,7 +124,7 @@ const App = {
       // Use relative path for GitHub Pages compatibility
       navigator.serviceWorker.register('./sw.js').then(registration => {
         console.log('SW registered:', registration);
-        Utils.showNotification('ACCA Agent is ready for offline use!', 'success');
+        // Removed ready-for-offline notification
       }).catch(error => {
         console.error('SW registration failed:', error);
         // Don't show error notification for service worker issues
