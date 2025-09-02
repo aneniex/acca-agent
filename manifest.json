@@ -2,7 +2,7 @@
   "name": "ACCA Agent - AI Study Companion",
   "short_name": "ACCA Agent",
   "description": "Your AI-powered study companion for ACCA qualifications. Get help with accounting standards, regulations, and exam preparation.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#0066cc",
   "theme_color": "#0066cc",

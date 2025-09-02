@@ -1,9 +1,9 @@
 // Service Worker for ACCA Agent PWA
 const CACHE_NAME = 'acca-agent-v1';
 const urlsToCache = [
-  '/',
-  '/index.html',
-  '/assets/images/favicon.ico',
+  './',
+  './index.html',
+  './assets/images/favicon.ico',
   '/assets/css/variables.css',
   '/assets/css/base.css',
   '/assets/css/header.css',

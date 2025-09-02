@@ -69,25 +69,41 @@ const App = {
       e.preventDefault();
       deferredPrompt = e;
       
-      // Show install button
-      const installBtn = document.createElement('button');
-      installBtn.className = 'btn btn-outline-primary btn-sm';
-      installBtn.innerHTML = '<i class="bi bi-download"></i> Install App';
-      installBtn.onclick = () => this.installApp(deferredPrompt);
+      // Store the prompt for later use
+      this.deferredPrompt = deferredPrompt;
       
-      document.querySelector('.header-controls').appendChild(installBtn);
+      // Show install button only if it doesn't already exist
+      if (!document.getElementById('pwaInstallBtn')) {
+        const installBtn = document.createElement('button');
+        installBtn.id = 'pwaInstallBtn';
+        installBtn.className = 'btn btn-outline-primary btn-sm';
+        installBtn.innerHTML = '<i class="bi bi-download"></i> Install App';
+        installBtn.onclick = () => this.installApp();
+        
+        // Add to header controls
+        const headerControls = document.querySelector('.header-controls');
+        if (headerControls) {
+          headerControls.appendChild(installBtn);
+        }
+      }
     });
   },
 
   // Install PWA
-  installApp(deferredPrompt) {
-    if (deferredPrompt) {
-      deferredPrompt.prompt();
-      deferredPrompt.userChoice.then((choiceResult) => {
+  installApp() {
+    if (this.deferredPrompt) {
+      this.deferredPrompt.prompt();
+      this.deferredPrompt.userChoice.then((choiceResult) => {
         if (choiceResult.outcome === 'accepted') {
           Utils.showNotification('ACCA Agent installed successfully!', 'success');
         }
-        deferredPrompt = null;
+        this.deferredPrompt = null;
+        
+        // Remove the install button after use
+        const installBtn = document.getElementById('pwaInstallBtn');
+        if (installBtn) {
+          installBtn.remove();
+        }
       });
     }
   },
@@ -104,11 +120,14 @@ const App = {
   // Register service worker
   registerServiceWorker() {
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').then(registration => {
+      // Use relative path for GitHub Pages compatibility
+      navigator.serviceWorker.register('./sw.js').then(registration => {
         console.log('SW registered:', registration);
         Utils.showNotification('ACCA Agent is ready for offline use!', 'success');
       }).catch(error => {
         console.error('SW registration failed:', error);
+        // Don't show error notification for service worker issues
+        // as they're not critical for basic functionality
       });
     }
   }
