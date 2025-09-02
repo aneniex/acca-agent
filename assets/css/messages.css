@@ -201,14 +201,14 @@ body.dark-mode .message-content th {
 }
 
 .expandable-content {
-  max-height: 300px;
-  overflow: hidden;
+  overflow: visible;
   transition: max-height 0.3s ease;
   position: relative;
 }
 
 .expandable-content.collapsed {
-  max-height: 150px;
+  max-height: 180px;
+  overflow: hidden;
 }
 
 .expandable-content.collapsed::after {

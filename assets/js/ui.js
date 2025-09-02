@@ -74,20 +74,20 @@ const UI = {
     return btn;
   },
 
-  // Make content expandable
+  // Make content expandable (default expanded)
   makeExpandable(content, messageDiv) {
-    content.classList.add('expandable-content', 'collapsed');
+    content.classList.add('expandable-content');
     
     const expandBtn = document.createElement('button');
     expandBtn.className = 'expand-btn';
-    expandBtn.textContent = 'Read more';
+    expandBtn.textContent = 'Show less';
     expandBtn.onclick = () => {
       if (content.classList.contains('collapsed')) {
         content.classList.remove('collapsed');
         expandBtn.textContent = 'Show less';
       } else {
         content.classList.add('collapsed');
-        expandBtn.textContent = 'Read more';
+        expandBtn.textContent = 'Show more';
       }
     };
     
